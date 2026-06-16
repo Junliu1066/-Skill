@@ -56,7 +56,7 @@
 每个 Skill 就是 `skills/` 下的一个文件夹，里面有一个 `SKILL.md`——这是通用的 Skill 格式。
 
 ```bash
-git clone https://github.com/<你的用户名>/vibe-coding-kit.git
+git clone https://github.com/Junliu1066/vibe-coding-kit.git
 ```
 
 把需要的 Skill 文件夹接入你的 Claude 即可。**具体接入方式因使用端而异**（Claude.ai 的自定义 Skill、Claude Code 的 Agent Skills、API 等各不相同，且可能更新），请以官方最新文档为准：
