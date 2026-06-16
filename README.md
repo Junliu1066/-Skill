@@ -91,7 +91,7 @@
 ## 快速开始
 
 ```bash
-git clone https://github.com/<你的用户名>/vibe-coding-kit.git
+git clone https://github.com/Junliu1066/vibe-coding-kit.git
 ```
 
 每个 Skill 就是一个含 `SKILL.md` 的文件夹——这是通用的 Skill 格式。把需要的那个接入你的 Claude 即可。
