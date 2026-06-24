@@ -142,6 +142,9 @@ cp -R vibe-coding-kit/skills/vibe-coding-requirements ~/.claude/skills/
 - 想借着每个项目，真正把技术判断力练出来的人。
 
 ## 参与共建
+聊天群：QQ群：891755269
+
+开发者微信：Zhiyy6979
 
 欢迎 Issue 和 PR：补充话术、修正不准的地方、贡献新的真实案例。改动时请守住这套件的脾气——**大白话、讲代价、不堆复杂度。**
 
