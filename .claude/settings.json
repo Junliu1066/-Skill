@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"${CLAUDE_TOOL_INPUT_FILE_PATH:-}\" in *docs/prd.md*|*docs/项目说明书.md*) echo '💡 产出物已写入 docs/。可以用 vibe-coding-harness 做合规检查：对我说「帮我质检」' ;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "description": "vibe-coding-kit 治理配置 —— 定义所有 Skill 的产出规范、校验规则和跨 Skill 一致性要求。这是唯一真实来源，CLAUDE.md 和 vibe-coding-harness Skill 都从此派生。",
+
+  "constitution": {
+    "language": "zh-CN",
+    "encoding": "UTF-8",
+    "line_endings": "LF",
+    "output_directory": "docs",
+    "forbidden": [
+      "输出中残留模板占位符（如 {产品名称}、TODO、TBD、___）",
+      "正文使用英文（术语、代码、URL 除外）",
+      "敏感信息（密钥、密码、token）出现在输出文件中",
+      "内部架构概念（如'用了几个 agent'）泄露到用户侧定位",
+      "验收标准写空话（如'系统正常运行'）"
+    ]
+  },
+
+  "file_naming": {
+    "prd": {
+      "path": "docs/prd.md",
+      "template": "examples/PRD-模板.md",
+      "description": "PRD 文档，由 vibe-coding-prd 产出"
+    },
+    "project_spec": {
+      "path": "docs/项目说明书.md",
+      "template": "examples/项目说明书-模板.md",
+      "description": "项目说明书，贯穿全流程的活文档"
+    },
+    "progress_ledger": {
+      "path": "docs/进度账本.md",
+      "template": "examples/进度账本-模板.md",
+      "description": "进度账本，流程的唯一状态来源。AI 每轮开场读、每过一道门更新"
+    }
+  },
+
+  "skills": {
+    "vibe-coding-prd": {
+      "description": "访谈式 PRD Agent —— 一问一答 + 岔路口给建议，产出 prd.md 和项目说明书.md",
+      "produces": [
+        {"file": "docs/prd.md", "required": true},
+        {"file": "docs/项目说明书.md", "required": true}
+      ],
+      "required_sections": {
+        "docs/prd.md": [
+          "0. 文档元信息",
+          "1. 产品结论",
+          "2. 用户、场景与形态",
+          "9. 验收标准",
+          "10. MVP 完成定义",
+          "11. 以后再说"
+        ],
+        "docs/项目说明书.md": [
+          "一句话",
+          "需求基准描述"
+        ]
+      },
+      "field_requirements": {
+        "docs/prd.md": [
+          {"field": "文档状态", "pattern": "草稿|评审中|交付版", "severity": "error", "hint": "必须从「草稿」「评审中」「交付版」中选一个"},
+          {"field": "版本", "pattern": "^v\\d+\\.\\d+", "severity": "error", "hint": "格式必须为 v数字.数字，如 v0.1"},
+          {"field": "产品名称", "non_empty": true, "severity": "error", "hint": "产品名称不能为空或占位符"},
+          {"field": "核心定位", "min_length": 10, "severity": "error", "hint": "核心定位至少 10 个字，必须是一句完整的话"},
+          {"field": "明确不做", "min_items": 1, "severity": "warning", "hint": "建议至少列出 1 条边界（明确不做什么）"},
+          {"field": "它活在哪", "non_empty": true, "severity": "error", "hint": "必须明确选定一项形态（纯前端/常开服务器/单文件脚本/零代码平台）"},
+          {"field": "验收标准", "min_items": 1, "severity": "error", "hint": "至少 1 条可验证的验收标准，不能是空话；推荐 EARS 格式：当【前置条件】，在【动作】时，则【可观察的结果】"}
+        ]
+      }
+    },
+
+    "vibe-coding-requirements": {
+      "description": "需求对齐 —— 把模糊想法变成 AI 能精准落地的需求",
+      "produces": [
+        {"section": "需求基准描述", "in_file": "docs/项目说明书.md", "required": true}
+      ],
+      "validation": {
+        "需求基准描述": {
+          "min_chars": 80,
+          "max_chars": 300,
+          "must_contain_keywords": ["场景", "目标", "约束", "验收"],
+          "severity": "warning",
+          "hint": "需求基准描述应覆盖四要素：场景、目标、约束、验收，建议 100-200 字"
+        }
+      }
+    },
+
+    "vibe-coding-architecture": {
+      "description": "架构选型 —— 6 维度看懂方案 + 五步决策法做选择",
+      "produces": [
+        {"section": "选定技术栈", "in_file": "docs/项目说明书.md", "required": true},
+        {"section": "目录结构", "in_file": "docs/项目说明书.md", "required": false}
+      ],
+      "validation": {
+        "选定技术栈": {
+          "must_contain_keywords": ["选定", "否决"],
+          "severity": "error",
+          "hint": "必须包含：选定了什么方案、否决了哪些方案及其理由"
+        }
+      }
+    },
+
+    "vibe-coding-production": {
+      "description": "上线准备 —— 开发规范、安全基线、部署、验收、文档",
+      "produces": [
+        {"section": "安全清单", "in_file": "docs/项目说明书.md", "required": true},
+        {"section": "验收清单", "in_file": "docs/项目说明书.md", "required": true},
+        {"section": "部署步骤", "in_file": "docs/项目说明书.md", "required": false},
+        {"section": "开发规范要点", "in_file": "docs/项目说明书.md", "required": false}
+      ],
+      "validation": {
+        "安全清单": {
+          "min_items": 1,
+          "severity": "error",
+          "hint": "8 条安全基线至少逐条确认一遍（标注已做/不适用）"
+        },
+        "验收清单": {
+          "must_be_checklist": true,
+          "severity": "error",
+          "hint": "验收清单必须是可以逐条打勾的 checkbox 格式"
+        }
+      }
+    },
+
+    "vibe-coding-survival": {
+      "description": "开发避坑与自救 —— 贯穿全程的纪律",
+      "produces": [
+        {"section": "以后再说清单", "in_file": "docs/项目说明书.md", "required": true},
+        {"section": "能用版备份在哪", "in_file": "docs/项目说明书.md", "required": false},
+        {"section": "当前进度", "in_file": "docs/项目说明书.md", "required": false}
+      ],
+      "validation": {
+        "以后再说清单": {
+          "section_must_exist": true,
+          "severity": "warning",
+          "hint": "「以后再说」清单至少需要存在（可以暂时为空，但不能缺这一节）"
+        }
+      }
+    }
+  },
+
+  "cross_skill_rules": [
+    {
+      "id": "CSR-001",
+      "description": "项目说明书中的「需求基准描述」必须与 PRD 中的「产品结论」表述一致，不能自相矛盾",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-requirements"],
+      "severity": "error"
+    },
+    {
+      "id": "CSR-002",
+      "description": "PRD「形态与资源约束」中的选择必须与项目说明书「选定技术栈」兼容",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-architecture"],
+      "severity": "warning"
+    },
+    {
+      "id": "CSR-003",
+      "description": "所有产出物中的项目名称必须一致",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-requirements", "vibe-coding-architecture", "vibe-coding-production"],
+      "severity": "error"
+    },
+    {
+      "id": "CSR-004",
+      "description": "验收标准必须是具体的、可手动验证的，不能是空话（如'系统正常运行'）；推荐 EARS 格式「当【前置条件】，在【动作】时，则【可观察的结果】」",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-production"],
+      "severity": "error"
+    }
+  ],
+
+  "quality_gates": {
+    "before_delivery": [
+      {"id": "QG-001", "rule": "files_exist", "description": "所有必须产出的文件已创建且非空"},
+      {"id": "QG-002", "rule": "no_placeholders", "description": "无模板占位符残留（如 {产品名称}、TODO、___）"},
+      {"id": "QG-003", "rule": "no_sensitive_data", "description": "无密钥、密码、token 等敏感信息"},
+      {"id": "QG-004", "rule": "version_present", "description": "版本号已填写且格式正确（如 v0.1）"},
+      {"id": "QG-005", "rule": "acceptance_verifiable", "description": "验收标准具体可验证，不是空话"},
+      {"id": "QG-006", "rule": "language_check", "description": "正文为简体中文（术语、代码、URL 除外）"}
+    ]
+  },
+
+  "workflow": {
+    "description": "流程状态机 —— 把 Harness 从'产出物检查员'升级为'流程管理员'。账本级中等约束、步骤级门。详见 docs/Harness-v2-重设计方案.md",
+    "ledger_file": "docs/进度账本.md",
+    "rules": [
+      "每轮对话开场，AI 先读账本并报告当前阶段+步骤",
+      "进入任一阶段前，其 entry_gate 必须全过，否则回退到前一阶段补完",
+      "每完成一步，立即更新账本（标记状态、推进当前步骤）",
+      "跳步只在分诊判定为'轻'时允许，且只能跳 required=false 的步骤，并在账本'跳步留痕'记录理由",
+      "声称某阶段完成前，其 exit_gate 必须全过；exit_gate 无论轻重模式都不打折"
+    ],
+    "modes": {
+      "重": "默认。逐步报门，一步一确认。用于'给别人用/正式系统/出错有代价'",
+      "轻": "分诊判轻时启用。必经步骤可按组合并报门，required=false 步骤默认跳并留痕；但 exit_gate 仍须全过。用于'自己用/一次性/跑 demo'"
+    },
+    "stages": [
+      {
+        "id": "S1",
+        "name": "需求对齐",
+        "skill": ["vibe-coding-prd", "vibe-coding-requirements"],
+        "entry_gate": [],
+        "steps": [
+          {"id": "S1.0", "name": "破冰",      "required": true,  "exit": "拿到一句话描述 + 谁用"},
+          {"id": "S1.1", "name": "分诊定深度", "required": true,  "exit": "判定轻/重，写入账本"},
+          {"id": "S1.2", "name": "资源清单",   "required": true,  "exit": "现有资源清单已回填"},
+          {"id": "S1.3", "name": "定形态",     "required": true,  "exit": "「它活在哪」已选定一项"},
+          {"id": "S1.4", "name": "补全需求",   "required": true,  "exit": "数据旅程+3×4扫过，缺口都有决定"},
+          {"id": "S1.5", "name": "信息架构",   "required": false, "exit": "UI 类产品才需要；否则跳步留痕"},
+          {"id": "S1.6", "name": "边界与禁区", "required": true,  "exit": "明确不做+合规红线已写"},
+          {"id": "S1.7", "name": "验收+MVP",   "required": true,  "exit": "验收用 EARS 可验证，MVP 线已定"},
+          {"id": "S1.8", "name": "技术栈雏形", "required": false, "exit": "形态对应的技术取向已定"},
+          {"id": "S1.9", "name": "落盘",       "required": true,  "exit": "prd.md + 项目说明书.md 已写"}
+        ],
+        "light_groups": [
+          ["S1.0", "S1.1", "S1.2"],
+          ["S1.3", "S1.4", "S1.6"],
+          ["S1.7", "S1.9"]
+        ],
+        "exit_gate": [
+          "docs/prd.md 通过其 field_requirements",
+          "docs/项目说明书.md 含「需求基准描述」且覆盖四要素"
+        ]
+      },
+      {
+        "id": "S2",
+        "name": "架构选型",
+        "skill": ["vibe-coding-architecture"],
+        "entry_gate": ["S1.exit_gate 全过"],
+        "steps": [
+          {"id": "S2.1", "name": "6维度拷问", "required": true,  "exit": "六维度各有答案"},
+          {"id": "S2.2", "name": "五步选型",   "required": true,  "exit": "列方案→砍方案→选定，有理由"},
+          {"id": "S2.3", "name": "项目结构",   "required": false, "exit": "目录结构已画"}
+        ],
+        "exit_gate": ["项目说明书「选定技术栈」含「选定」与「否决」"]
+      },
+      {
+        "id": "S3",
+        "name": "上线准备",
+        "skill": ["vibe-coding-production"],
+        "entry_gate": ["S2.exit_gate 全过", "用户确认要做成正式系统"],
+        "steps": [
+          {"id": "S3.1", "name": "开发规范", "required": true,  "exit": "分支/日志/错误处理已定"},
+          {"id": "S3.2", "name": "安全基线", "required": true,  "exit": "8 条逐条确认(已做/不适用)"},
+          {"id": "S3.3", "name": "部署",     "required": true,  "exit": "部署步骤可执行"},
+          {"id": "S3.4", "name": "测试验收", "required": true,  "exit": "验收清单是 checkbox 格式"},
+          {"id": "S3.5", "name": "文档",     "required": false, "exit": "交付文档齐全"}
+        ],
+        "exit_gate": ["项目说明书含「安全清单」「验收清单」"]
+      }
+    ],
+    "always_on": {
+      "skill": "vibe-coding-survival",
+      "note": "贯穿全程，不进流水线；红线触发(动钱/动隐私)时强制提示找真人"
+    }
+  }
+}
