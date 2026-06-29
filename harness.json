@@ -27,6 +27,11 @@
       "template": "examples/项目说明书-模板.md",
       "description": "项目说明书，贯穿全流程的活文档"
     },
+    "development_spec": {
+      "path": "docs/开发文档.md",
+      "template": "examples/开发文档-模板.md",
+      "description": "开发文档（SDD），把 PRD 和项目说明书转成 AI 可执行的实现规格"
+    },
     "progress_ledger": {
       "path": "docs/进度账本.md",
       "template": "examples/进度账本-模板.md",
@@ -52,7 +57,9 @@
         ],
         "docs/项目说明书.md": [
           "一句话",
-          "需求基准描述"
+          "需求基准描述",
+          "产品思考模块（预留）",
+          "决策复盘 / 案例库"
         ]
       },
       "field_requirements": {
@@ -71,7 +78,8 @@
     "vibe-coding-requirements": {
       "description": "需求对齐 —— 把模糊想法变成 AI 能精准落地的需求",
       "produces": [
-        {"section": "需求基准描述", "in_file": "docs/项目说明书.md", "required": true}
+        {"section": "需求基准描述", "in_file": "docs/项目说明书.md", "required": true},
+        {"section": "产品思考模块（预留）", "in_file": "docs/项目说明书.md", "required": false}
       ],
       "validation": {
         "需求基准描述": {
@@ -80,6 +88,11 @@
           "must_contain_keywords": ["场景", "目标", "约束", "验收"],
           "severity": "warning",
           "hint": "需求基准描述应覆盖四要素：场景、目标、约束、验收，建议 100-200 字"
+        },
+        "产品思考模块（预留）": {
+          "section_must_exist": true,
+          "severity": "info",
+          "hint": "预留产品判断、用户价值、商业/增长、优先级和取舍等内容；未对齐前只保留入口，不作为出口门"
         }
       }
     },
@@ -101,6 +114,9 @@
 
     "vibe-coding-production": {
       "description": "上线准备 —— 开发规范、安全基线、部署、验收、文档",
+      "produces_files": [
+        {"file": "docs/开发文档.md", "template": "examples/开发文档-模板.md", "required": false}
+      ],
       "produces": [
         {"section": "安全清单", "in_file": "docs/项目说明书.md", "required": true},
         {"section": "验收清单", "in_file": "docs/项目说明书.md", "required": true},
@@ -117,6 +133,11 @@
           "must_be_checklist": true,
           "severity": "error",
           "hint": "验收清单必须是可以逐条打勾的 checkbox 格式"
+        },
+        "docs/开发文档.md": {
+          "template": "examples/开发文档-模板.md",
+          "severity": "warning",
+          "hint": "正式开发前建议产出开发文档，至少覆盖概述、架构、流程、模块、目录、数据结构、接口、业务规则、测试计划、反馈回路"
         }
       }
     },
@@ -125,6 +146,7 @@
       "description": "开发避坑与自救 —— 贯穿全程的纪律",
       "produces": [
         {"section": "以后再说清单", "in_file": "docs/项目说明书.md", "required": true},
+        {"section": "决策复盘 / 案例库", "in_file": "docs/项目说明书.md", "required": true},
         {"section": "能用版备份在哪", "in_file": "docs/项目说明书.md", "required": false},
         {"section": "当前进度", "in_file": "docs/项目说明书.md", "required": false}
       ],
@@ -133,6 +155,11 @@
           "section_must_exist": true,
           "severity": "warning",
           "hint": "「以后再说」清单至少需要存在（可以暂时为空，但不能缺这一节）"
+        },
+        "决策复盘 / 案例库": {
+          "section_must_exist": true,
+          "severity": "warning",
+          "hint": "遇到矛盾、缺决策、做不出来或方案偏离时，解决后必须记录问题、选项、决定、代价和下次复用规则"
         }
       }
     }
@@ -162,6 +189,24 @@
       "description": "验收标准必须是具体的、可手动验证的，不能是空话（如'系统正常运行'）；推荐 EARS 格式「当【前置条件】，在【动作】时，则【可观察的结果】」",
       "skills_involved": ["vibe-coding-prd", "vibe-coding-production"],
       "severity": "error"
+    },
+    {
+      "id": "CSR-005",
+      "description": "遇到需求矛盾、缺决策、实现卡住或方案偏离预期时，解决后必须把案例沉淀到项目说明书「决策复盘 / 案例库」，供下次参考",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-requirements", "vibe-coding-architecture", "vibe-coding-production", "vibe-coding-survival"],
+      "severity": "warning"
+    },
+    {
+      "id": "CSR-006",
+      "description": "项目说明书预留「产品思考模块（预留）」，用于后续沉淀产品判断、用户价值、商业/增长、优先级和取舍；未对齐前不强制展开、不替代 PRD",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-requirements"],
+      "severity": "info"
+    },
+    {
+      "id": "CSR-007",
+      "description": "开发文档必须承接 PRD 和项目说明书，把需求、技术栈和约束落到模块、接口、数据结构、任务、测试和反馈回路；不得与 PRD / 项目说明书自相矛盾",
+      "skills_involved": ["vibe-coding-prd", "vibe-coding-architecture", "vibe-coding-production"],
+      "severity": "warning"
     }
   ],
 
@@ -172,7 +217,9 @@
       {"id": "QG-003", "rule": "no_sensitive_data", "description": "无密钥、密码、token 等敏感信息"},
       {"id": "QG-004", "rule": "version_present", "description": "版本号已填写且格式正确（如 v0.1）"},
       {"id": "QG-005", "rule": "acceptance_verifiable", "description": "验收标准具体可验证，不是空话"},
-      {"id": "QG-006", "rule": "language_check", "description": "正文为简体中文（术语、代码、URL 除外）"}
+      {"id": "QG-006", "rule": "language_check", "description": "正文为简体中文（术语、代码、URL 除外）"},
+      {"id": "QG-007", "rule": "decision_case_log_checked", "description": "如本轮遇到矛盾、缺决策、做不出来或方案偏离，已沉淀到「决策复盘 / 案例库」"},
+      {"id": "QG-008", "rule": "development_spec_checked", "description": "如本轮进入正式开发，已检查或产出 `docs/开发文档.md`，且覆盖实现、接口、数据、任务、测试和反馈回路"}
     ]
   },
 
@@ -183,6 +230,7 @@
       "每轮对话开场，AI 先读账本并报告当前阶段+步骤",
       "进入任一阶段前，其 entry_gate 必须全过，否则回退到前一阶段补完",
       "每完成一步，立即更新账本（标记状态、推进当前步骤）",
+      "遇到矛盾、缺决策、做不出来或方案偏离时，先暂停处理；解决后写入「决策复盘 / 案例库」",
       "跳步只在分诊判定为'轻'时允许，且只能跳 required=false 的步骤，并在账本'跳步留痕'记录理由",
       "声称某阶段完成前，其 exit_gate 必须全过；exit_gate 无论轻重模式都不打折"
     ],
@@ -240,7 +288,8 @@
           {"id": "S3.2", "name": "安全基线", "required": true,  "exit": "8 条逐条确认(已做/不适用)"},
           {"id": "S3.3", "name": "部署",     "required": true,  "exit": "部署步骤可执行"},
           {"id": "S3.4", "name": "测试验收", "required": true,  "exit": "验收清单是 checkbox 格式"},
-          {"id": "S3.5", "name": "文档",     "required": false, "exit": "交付文档齐全"}
+          {"id": "S3.5", "name": "开发文档", "required": false, "exit": "正式开发前建议完成 docs/开发文档.md；轻模式可跳但要留痕"},
+          {"id": "S3.6", "name": "交付文档", "required": false, "exit": "交付文档齐全"}
         ],
         "exit_gate": ["项目说明书含「安全清单」「验收清单」"]
       }
